@@ -1,0 +1,27 @@
+{
+  "name": "poh_vouch_diagram",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack --mode=development",
+    "production": "webpack --mode=production",
+    "watch": "webpack --mode=development --watch",
+    "watchp": "webpack --mode=production --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.26.3",
+    "webpack-cli": "^4.5.0"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "d3": "^6.6.0",
+    "graphql": "^15.5.0",
+    "vis-data": "^7.1.2",
+    "vis-network": "^9.0.4"
+  }
+}
