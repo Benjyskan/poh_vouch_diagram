@@ -1,27 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Map Of Humanity</title>
+    <title>Map of Humanity</title>
+    <link rel="icon" 
+      type="image/png" 
+      href="favicon-32x32.png" />
 </head>
 <style type="text/css">
 body{
     font-family: sans-serif;
+    font-weight: lighter;
     margin: 0px;
     background: #fffffa;
 }
 #nav{
     width: 100vw;
-    height: 60px;
+    height: 70px;
     color: white;
     font-size: 22px;
-    line-height: 60px;
+    line-height: 70px;
     padding-left: 30px;
     background:linear-gradient(90.13deg, #fdc9d3   49.89%, skyblue 93.37%);
+    border-bottom: 2px solid purple;
 }
 #diagram{
-    width:100vw;
+    width: 100vw;
     height: 100vh;
     border: none;
+    float: left;
+}
+#sidebar{
+    z-index: 1000;
+    position: fixed;
+    width: 90vw;
+    height: 60px;
+    bottom: 1vh;
+    right: 5vw;
+    border: 2px solid purple;
+    background:#fffffa;
+    border-radius: 5px;
+}
+a {
+    text-decoration: none;
+
 }
 canvas {
   outline: none !important;
@@ -31,6 +52,8 @@ canvas {
 <body>
 <div id="nav">
 🌐 Map of Humanity
+</div>
+<div id="sidebar" style="display: none;">
 </div>
 <div id="diagram"></div>
 <script src="./js/index.js"></script>

@@ -59,7 +59,7 @@ class Diagram {
             nodes.push(node);
         }
         this.structuredData = {"nodes":nodes, "edges":edges};
-        console.log("STRUCTURED DATA : ", this.structuredData); 
+        // console.log("STRUCTURED DATA : ", this.structuredData); 
         return this.structuredData;
     }
 
@@ -67,18 +67,16 @@ class Diagram {
     async addContent(){
         console.log("Adding Content...");
         for(var i = 0; i < this.structuredData.nodes.length; i++) {
-            console.log(this.structuredData.nodes[i]);
+            // console.log(this.structuredData.nodes[i]);
             try{
-                let url = this.structuredData.nodes[i].requests[0].evidence[0].URI;
-                console.log(url);
-                if(url ==  undefined){
+                if(this.structuredData.nodes[i].requests[0].evidence[0].URI ==  undefined){
                     break;
                 }
 
-                console.log(this.ipfs_kleros+url);
-                let res = await axios.get(this.ipfs_kleros+url)
-                    .then((response)=>{
-                        axios.get(this.ipfs_kleros+response.data.fileURI)
+                // console.log(this.ipfs_kleros+this.structuredData.nodes[i].requests[0].evidence[0].URI);
+                let res = await axios.get(this.ipfs_kleros+this.structuredData.nodes[i].requests[0].evidence[0].URI)
+                    .then(async(response)=>{
+                        let res2 = await axios.get(this.ipfs_kleros+response.data.fileURI)
                             .then((response)=>{
                                 this.structuredData.nodes[i].firstName = response.data.firstName;
                                 this.structuredData.nodes[i].lastName = response.data.lastName;
@@ -87,18 +85,21 @@ class Diagram {
                                 this.structuredData.nodes[i].video = this.ipfs_kleros+response.data.video;
                             })
                             .catch((error)=>{
-                                console.log("75",error);
+                                // console.log("75",error);
+                                console.log("error loading human's image!");
                             })
                     })
                     .catch((error)=>{
-                        console.log("79",error);
+                        // console.log("79",error);
+                        console.log("error loading human's image!");
                     })
 
             }catch(error){
-                console.log(error);
+                // console.log(error);
+                console.log("error loading human's image!");
             }
         } 
-        console.log("UPDATED STRUCTURED DATA : ",this.structuredData);
+        // console.log("UPDATED STRUCTURED DATA : ",this.structuredData);
         return this.structuredData;
     }
 
@@ -108,7 +109,7 @@ class Diagram {
             nodes: {
                 shape: "dot",
                 size: 16,
-                // color: "purple",
+                color: "purple",
                 shape: "circularImage"
             },
             physics: {
@@ -125,7 +126,7 @@ class Diagram {
             },
         };
         let network = new vis.Network(document.getElementById("diagram"), data, drawingOptions);
-        console.log(network);
+        // console.log(network);
     }
 }
 
@@ -137,9 +138,11 @@ async function run(){
     console.log("------------------------------------")
     let sData = await diagram.structureData();
     console.log("------------------------------------")
-    // let data = await diagram.addContent()
+    let data = await diagram.addContent();
     console.log("------------------------------------")
-    diagram.draw(sData);
+    diagram.draw(diagram.structuredData);
+    
+    
 }
 
 console.log("Map of Proof of Humanity Loading...");
