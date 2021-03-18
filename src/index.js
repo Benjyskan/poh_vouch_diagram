@@ -1,6 +1,6 @@
-
 import * as axios from 'axios';
 import * as vis from 'vis-network';
+import * as ethers from 'ethers';
 
 class Diagram {
     constructor(){
@@ -11,7 +11,16 @@ class Diagram {
         this.graphData = [];
         this.structuredData = [];
         this.ipfs_kleros = "https://ipfs.kleros.io";
+        // this.provider = new ethers.providers.JsonRpcProvider("https://mainnet.infura.io/v3/f243bc81cdd44e2ebf78f3b8dac5c03b");
+        // this.ubiAddress = "0xdd1ad9a21ce722c151a836373babe42c868ce9a4";
+        // this.ubiAbi = [
+        //     "function name() view returns (string)",
+        //     "function symbol() view returns (string)",
+        //     "function balanceOf(address) view returns (uint)",
+        // ]
+        // this.ubiContract = new ethers.Contract( this.ubiAddress, this.ubiAbi, this.provider);
     }
+
 
     async loadGraphData(){
         console.log("Querying Graph Data...");
@@ -54,7 +63,8 @@ class Diagram {
                 "lastName": "",
                 "bio": "",
                 "image": "img/placeholder.png",
-                "video": ""
+                "video": "",
+                "balance": 1
             }
             nodes.push(node);
         }
@@ -68,11 +78,19 @@ class Diagram {
         console.log("Adding Content...");
         for(var i = 0; i < this.structuredData.nodes.length; i++) {
             // console.log(this.structuredData.nodes[i]);
+            // try{
+            //     let balance = await this.ubiContract.balanceOf(this.structuredData.nodes[i].id)
+            //     this.structuredData.nodes[i].balance = ethers.utils.formatUnits(balance.toString(), 'wei')/18;
+            //     console.log("balance", this.structuredData.nodes[i].balance);
+            // }catch(error){
+            //     console.log("error getting balanceOf", error);
+            // }
+                    
+
             try{
                 if(this.structuredData.nodes[i].requests[0].evidence[0].URI ==  undefined){
                     break;
                 }
-
                 // console.log(this.ipfs_kleros+this.structuredData.nodes[i].requests[0].evidence[0].URI);
                 let res = await axios.get(this.ipfs_kleros+this.structuredData.nodes[i].requests[0].evidence[0].URI)
                     .then(async(response)=>{
@@ -134,6 +152,7 @@ class Diagram {
 async function run(){
     let diagram = new Diagram();
     console.log("------------------------------------")
+    console.log("provider:", diagram.provider);
     let lData = await diagram.loadGraphData();
     console.log("------------------------------------")
     let sData = await diagram.structureData();
