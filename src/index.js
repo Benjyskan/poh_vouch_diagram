@@ -7,7 +7,9 @@ class Diagram {
         console.log("Constructing...");
         this.element = document.getElementById("diagram");
         this.graphURL = "https://api.thegraph.com/subgraphs/name/kleros/proof-of-humanity-mainnet";
-        this.graphQuery = "{submissions(where:{registered:true}) {id status registered name vouchees{id} requests{evidence{sender URI}}}}";
+
+        this.graphQuery = "{submissions(where:{registered:true}){id status registered name vouchees{id} requests{evidence{sender URI}}}}";
+
         this.graphData = [];
         this.structuredData = [];
         this.ipfs_kleros = "https://ipfs.kleros.io";
@@ -145,6 +147,7 @@ class Diagram {
         };
         let network = new vis.Network(document.getElementById("diagram"), data, drawingOptions);
         // console.log(network);
+
     }
 }
 
@@ -157,9 +160,10 @@ async function run(){
     console.log("------------------------------------")
     let sData = await diagram.structureData();
     console.log("------------------------------------")
-    let data = await diagram.addContent();
+    // let data = await diagram.addContent();
     console.log("------------------------------------")
     diagram.draw(diagram.structuredData);
+    console.log(diagram.structuredData);
     
     
 }
