@@ -8,7 +8,7 @@ class Diagram {
         this.element = document.getElementById("diagram");
         this.graphURL = "https://api.thegraph.com/subgraphs/name/kleros/proof-of-humanity-mainnet";
 
-        this.graphQuery = "{submissions(where:{registered:true}){id status registered name vouchees{id} requests{evidence{sender URI}}}}";
+        this.graphQuery = "{submissions(first:1000){id status registered name vouchees{id} requests{evidence{sender URI}}}}";
 
         this.graphData = [];
         this.structuredData = [];
@@ -43,18 +43,8 @@ class Diagram {
         let nodes = [];
         let edges = [];
         for (var i = 0; i < this.graphData.data.submissions.length; i++) {
-            try{
-                for (var j = 0; j < this.graphData.data.submissions[j].vouchees.length; j++) {
-                    let edge = {
-                        "from": this.graphData.data.submissions[i].id,
-                        "to": this.graphData.data.submissions[i].vouchees[j].id
-                    }
-                    edges.push(edge);
-                }
-            }catch(e){
-                //unregistered vouchee nodes dont exist yet so cant be linked to.
-                // console.log(e);
-            } 
+            // console.log(this.graphData.data.submissions[i]);
+            
             let node = {
                 "id": this.graphData.data.submissions[i].id,
                 "label": this.graphData.data.submissions[i].name,
@@ -69,6 +59,19 @@ class Diagram {
                 "balance": 1
             }
             nodes.push(node);
+            try{
+                for (var j = 0; j < this.graphData.data.submissions[i].vouchees.length; j++) {
+                    let edge = {
+                        "from": this.graphData.data.submissions[i].id,
+                        "to": this.graphData.data.submissions[i].vouchees[j].id
+                    }
+                    // console.log("EDGE", edge)
+                    edges.push(edge);
+                }
+            }catch(e){
+                //unregistered vouchee nodes dont exist yet so cant be linked to.
+                console.log(e);
+            } 
         }
         this.structuredData = {"nodes":nodes, "edges":edges};
         // console.log("STRUCTURED DATA : ", this.structuredData); 
@@ -105,17 +108,14 @@ class Diagram {
                                 this.structuredData.nodes[i].video = this.ipfs_kleros+response.data.video;
                             })
                             .catch((error)=>{
-                                // console.log("75",error);
                                 console.log("error loading human's image!");
                             })
                     })
                     .catch((error)=>{
-                        // console.log("79",error);
                         console.log("error loading human's image!");
                     })
 
             }catch(error){
-                // console.log(error);
                 console.log("error loading human's image!");
             }
         } 
@@ -162,8 +162,8 @@ async function run(){
     console.log("------------------------------------")
     // let data = await diagram.addContent();
     console.log("------------------------------------")
-    diagram.draw(diagram.structuredData);
-    console.log(diagram.structuredData);
+    diagram.draw(sData);
+    console.log("STRUCTURED DATA : ",sData);
     
     
 }
