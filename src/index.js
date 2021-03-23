@@ -37,17 +37,6 @@ class Diagram {
         console.log("GRAPH DATA : ",this.graphData);
     }
 
-    containsObject(obj, list) {
-        var i;
-        for (i = 0; i < list.length; i++) {
-            if (list[i] === obj) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     async structureData(){
         console.log("Structuring Data...");
         let nodes = [];
@@ -66,30 +55,36 @@ class Diagram {
                 "bio": "",
                 "image": "img/placeholder.png",
                 "video": "",
-                "balance": 1
+                "balance": 1,
+                "color": "orange"
+            }
+            if(node.status == "None" && node.registered == false){
+                // console.log("Deleted Node ???", node);
+                // node isnt registered, but isnt in vouching, assume deleted?
+                node.color = "red";
+            }else if(node.registered){
+                // node is registered
+                node.color = "purple";
+            }else if(node.status =="Pending Registration"){
+                // node isnt registered
+                node.color = "blue";
             }
 
-            if(this.containsObject(nodes, node) == false){
-
-                nodes.push(node);
-            }else{
-                console.log("NODE IS IN LIST");
-            }
+            // if(node.registered == false && submission.vouchees.length >0){
+            //     console.log(node);
+            // }
             
-            try{
-                for (var j = 0; j < submission.vouchees.length; j++) {
-                    let vouchee = submission.vouchees[j];
-                    let edge = {
-                        "from": node.id,
-                        "to": vouchee.id
-                    }
-                    // console.log("EDGE", edge)
-                    edges.push(edge);
+            nodes.push(node);
+            
+            for (var j = 0; j < submission.vouchees.length; j++) {
+                let vouchee = submission.vouchees[j];
+                let edge = {
+                    "from": node.id,
+                    "to": vouchee.id
                 }
-            }catch(e){
-                //unregistered vouchee nodes dont exist yet so cant be linked to.
-                console.log(e);
-            } 
+                // console.log("EDGE", edge)
+                edges.push(edge);
+            }
         }
         this.structuredData = {"nodes":nodes, "edges":edges};
         console.log("STRUCTURED DATA : ", this.structuredData); 
@@ -147,7 +142,8 @@ class Diagram {
             nodes: {
                 shape: "dot",
                 size: 16,
-                color: "purple",
+                // color: "purple",
+                // parseColor: true,
                 shape: "circularImage"
             },
             physics: {
