@@ -44,13 +44,13 @@ class Diagram {
         let edges = [];
         for (var i = 0; i < this.graphData.data.submissions.length; i++) {
             // console.log(this.graphData.data.submissions[i]);
-            
+            let submission = this.graphData.data.submissions[i];
             let node = {
-                "id": this.graphData.data.submissions[i].id,
-                "label": this.graphData.data.submissions[i].name,
-                "status": this.graphData.data.submissions[i].status,
-                "registered": this.graphData.data.submissions[i].registered,
-                "requests": this.graphData.data.submissions[i].requests,
+                "id": submission.id,
+                "label": submission.name,
+                "status": submission.status,
+                "registered":submission.registered,
+                "requests": submission.requests,
                 "firstName": "",
                 "lastName": "",
                 "bio": "",
@@ -60,10 +60,10 @@ class Diagram {
             }
             nodes.push(node);
             try{
-                for (var j = 0; j < this.graphData.data.submissions[i].vouchees.length; j++) {
+                for (var j = 0; j < submission.vouchees.length; j++) {
                     let edge = {
-                        "from": this.graphData.data.submissions[i].id,
-                        "to": this.graphData.data.submissions[i].vouchees[j].id
+                        "from": submission.id,
+                        "to": submission.vouchees[j].id
                     }
                     // console.log("EDGE", edge)
                     edges.push(edge);
