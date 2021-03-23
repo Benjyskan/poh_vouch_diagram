@@ -37,6 +37,16 @@ class Diagram {
         console.log("GRAPH DATA : ",this.graphData);
     }
 
+    containsObject(obj, list) {
+        var i;
+        for (i = 0; i < list.length; i++) {
+            if (list[i] === obj) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     async structureData(){
         console.log("Structuring Data...");
@@ -58,12 +68,20 @@ class Diagram {
                 "video": "",
                 "balance": 1
             }
-            nodes.push(node);
+
+            if(this.containsObject(nodes, node) == false){
+
+                nodes.push(node);
+            }else{
+                console.log("NODE IS IN LIST");
+            }
+            
             try{
                 for (var j = 0; j < submission.vouchees.length; j++) {
+                    let vouchee = submission.vouchees[j];
                     let edge = {
-                        "from": submission.id,
-                        "to": submission.vouchees[j].id
+                        "from": node.id,
+                        "to": vouchee.id
                     }
                     // console.log("EDGE", edge)
                     edges.push(edge);
@@ -74,7 +92,7 @@ class Diagram {
             } 
         }
         this.structuredData = {"nodes":nodes, "edges":edges};
-        // console.log("STRUCTURED DATA : ", this.structuredData); 
+        console.log("STRUCTURED DATA : ", this.structuredData); 
         return this.structuredData;
     }
 
@@ -141,31 +159,32 @@ class Diagram {
                 },
                 maxVelocity: 100,
                 solver: "forceAtlas2Based",
-                timestep: 0.15,
+                timestep: 0.5,
                 stabilization: { iterations: 50 },
             },
+            edges: {
+                arrows: {
+                    to: { enabled: true, scaleFactor: 1, type: "arrow" }
+                }
+            }
         };
         let network = new vis.Network(document.getElementById("diagram"), data, drawingOptions);
         // console.log(network);
 
     }
+
 }
 
 //-------------------------------------------------
 async function run(){
     let diagram = new Diagram();
     console.log("------------------------------------")
-    console.log("provider:", diagram.provider);
-    let lData = await diagram.loadGraphData();
-    console.log("------------------------------------")
-    let sData = await diagram.structureData();
-    console.log("------------------------------------")
-    // let data = await diagram.addContent();
-    console.log("------------------------------------")
-    diagram.draw(sData);
-    console.log("STRUCTURED DATA : ",sData);
-    
-    
+    // console.log("provider:", diagram.provider);
+    diagram.loadGraphData().then((graphdata)=>{
+        diagram.structureData().then((structureddata)=>{
+            diagram.draw(structureddata)
+        })
+    })   
 }
 
 console.log("Map of Proof of Humanity Loading...");
