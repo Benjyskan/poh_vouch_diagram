@@ -15,14 +15,13 @@ class Diagram {
         this.structuredData = [];
         this.ipfs_kleros = "https://ipfs.kleros.io";
 
-        // this.provider = new ethers.providers.JsonRpcProvider("https://mainnet.infura.io/v3/f243bc81cdd44e2ebf78f3b8dac5c03b");
-        // this.ubiAddress = "0xdd1ad9a21ce722c151a836373babe42c868ce9a4";
-        // this.ubiAbi = [
-        //     "function name() view returns (string)",
-        //     "function symbol() view returns (string)",
-        //     "function balanceOf(address) view returns (uint)",
-        // ]
-        // this.ubiContract = new ethers.Contract( this.ubiAddress, this.ubiAbi, this.provider);
+        this.ubiAddress = "0xdd1ad9a21ce722c151a836373babe42c868ce9a4";
+        this.ubiAbi = [
+            "function name() view returns (string)",
+            "function symbol() view returns (string)",
+            "function balanceOf(address) view returns (uint)",
+        ]
+        this.ubiContract = new ethers.Contract( this.ubiAddress, this.ubiAbi, this.provider);
     }
 
 
@@ -179,11 +178,6 @@ class Diagram {
                 let res2 = await axios.get(this.ipfs_kleros+response.data.fileURI)
                     .then((response)=>{
                         // console.log(response.data);
-                        // node.firstName = response.data.firstName;
-                        // node.lastName = response.data.lastName;
-                        // node.bio = response.data.bio;
-                        // node.image = this.ipfs_kleros+response.data.photo;
-                        // node.video = this.ipfs_kleros+response.data.video;
                         return response.data;
                     })
                     .catch((error)=>{
@@ -196,8 +190,18 @@ class Diagram {
                 console.log("error loading human's image!");
                 return false;
             })
+
         return res;
     }
+
+    // async getUBIBalance(address){
+    //     let bal = await this.ubiContract.balanceOf(address).then((res)=>{
+    //         console.log(res)
+    //         return res.toString();
+    //     });
+    //     return bal;
+        
+    // }
 
     showNodeDetails(nodeID){
         console.log("Finding Node...");
@@ -217,9 +221,15 @@ class Diagram {
             $('#details_registered').html(node.registered);
             $('#details_status').html(node.status);
             $('#details_bio').html(node.bio);
+            // this.getUBIBalance(nodeID).then((balance)=>{
+            //     console.log("bal", balance);
+            //     node.balance = balance;
+            //     $('#details_ubi').html(balance);
+            // })
             //ADD A LINK THROUGH TO PROOFOFHUMANITY.ID PROFILE? 
             $('#sidebar').show();
         });
+
     }
 
     registerEvents(){
@@ -237,7 +247,6 @@ class Diagram {
 async function run(){
     let diagram = new Diagram();
     console.log("------------------------------------")
-    // console.log("provider:", diagram.provider);
     diagram.loadGraphData().then((graphdata)=>{
         diagram.structureData().then((structureddata)=>{
             diagram.draw(structureddata)
