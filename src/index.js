@@ -217,7 +217,7 @@ class Diagram {
             $('#details_registered').html(node.registered);
             $('#details_status').html(node.status);
             $('#details_bio').html(node.bio);
-
+            //ADD A LINK THROUGH TO PROOFOFHUMANITY.ID PROFILE? 
             $('#sidebar').show();
         });
     }
