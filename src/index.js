@@ -67,11 +67,11 @@ class Diagram {
                 node.image = "img/danger.png";
             }else if(node.registered){
                 // node is registered
-                node.color = "purple";
+                node.color = "orange";
                 node.image = "img/registered.png";
             }else if(node.status =="Pending Registration"){
                 // node isnt registered
-                node.color = "blue";
+                node.color = "purple";
             }
             // if(node.registered == false && submission.vouchees.length >0){
             //     console.log(node);
