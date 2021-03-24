@@ -22,6 +22,7 @@ class Diagram {
             "function balanceOf(address) view returns (uint)",
         ]
         this.ubiContract = new ethers.Contract( this.ubiAddress, this.ubiAbi, this.provider);
+
     }
 
 
@@ -63,6 +64,7 @@ class Diagram {
                 // console.log("Deleted Node ???", node);
                 // node isnt registered, but isnt in vouching, assume deleted?
                 node.color = "red";
+                node.image = "img/danger.png";
             }else if(node.registered){
                 // node is registered
                 node.color = "purple";
@@ -71,7 +73,6 @@ class Diagram {
                 // node isnt registered
                 node.color = "blue";
             }
-
             // if(node.registered == false && submission.vouchees.length >0){
             //     console.log(node);
             // }
@@ -221,6 +222,10 @@ class Diagram {
             $('#details_registered').html(node.registered);
             $('#details_status').html(node.status);
             $('#details_bio').html(node.bio);
+
+            if(node.id == "0x601729acddb9e966822a90de235d494647691f1d"){
+                console.log("👋 Vouch for me -> https://app.proofofhumanity.id/profile/0x601729acddb9e966822a90de235d494647691f1d?network=mainnet");
+            }
             // this.getUBIBalance(nodeID).then((balance)=>{
             //     console.log("bal", balance);
             //     node.balance = balance;
@@ -249,7 +254,8 @@ async function run(){
     console.log("------------------------------------")
     diagram.loadGraphData().then((graphdata)=>{
         diagram.structureData().then((structureddata)=>{
-            diagram.draw(structureddata)
+            diagram.draw(structureddata);
+            console.warn("👋 Vouch for me -> https://app.proofofhumanity.id/profile/0x601729acddb9e966822a90de235d494647691f1d?network=mainnet");
         })
     })   
 }
