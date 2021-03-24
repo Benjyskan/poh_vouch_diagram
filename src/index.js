@@ -1,6 +1,7 @@
 import * as axios from 'axios';
 import * as vis from 'vis-network';
 import * as ethers from 'ethers';
+import * as $ from 'jquery';
 
 class Diagram {
     constructor(){
@@ -13,6 +14,7 @@ class Diagram {
         this.graphData = [];
         this.structuredData = [];
         this.ipfs_kleros = "https://ipfs.kleros.io";
+
         // this.provider = new ethers.providers.JsonRpcProvider("https://mainnet.infura.io/v3/f243bc81cdd44e2ebf78f3b8dac5c03b");
         // this.ubiAddress = "0xdd1ad9a21ce722c151a836373babe42c868ce9a4";
         // this.ubiAbi = [
@@ -65,6 +67,7 @@ class Diagram {
             }else if(node.registered){
                 // node is registered
                 node.color = "purple";
+                node.image = "img/registered.png";
             }else if(node.status =="Pending Registration"){
                 // node isnt registered
                 node.color = "blue";
@@ -164,11 +167,70 @@ class Diagram {
                 }
             }
         };
-        let network = new vis.Network(document.getElementById("diagram"), data, drawingOptions);
+        this.network = new vis.Network(document.getElementById("diagram"), data, drawingOptions);
         // console.log(network);
-
+        this.registerEvents();
     }
 
+    async getProfile(node){
+        
+        let res = await axios.get(this.ipfs_kleros+node.requests[0].evidence[0].URI)
+            .then(async(response)=>{
+                let res2 = await axios.get(this.ipfs_kleros+response.data.fileURI)
+                    .then((response)=>{
+                        // console.log(response.data);
+                        // node.firstName = response.data.firstName;
+                        // node.lastName = response.data.lastName;
+                        // node.bio = response.data.bio;
+                        // node.image = this.ipfs_kleros+response.data.photo;
+                        // node.video = this.ipfs_kleros+response.data.video;
+                        return response.data;
+                    })
+                    .catch((error)=>{
+                        console.log("error loading human's image!");
+                        return false;
+                    })
+                return res2;
+            })
+            .catch((error)=>{
+                console.log("error loading human's image!");
+                return false;
+            })
+        return res;
+    }
+
+    showNodeDetails(nodeID){
+        console.log("Finding Node...");
+        let node = this.structuredData.nodes.find(x => x.id === nodeID);
+        //set the placeholder image between loading
+        $('#details_image').attr('src', node.image);
+        this.getProfile(node).then((data)=>{
+            console.log(data);
+            node.firstName = data.firstName;
+            node.lastName = data.lastName;
+            node.bio = data.bio;
+            node.image = this.ipfs_kleros+data.photo;
+            node.video = this.ipfs_kleros+data.video;
+            $('#details_image').attr('src', node.image);
+            $('#details_name').html(node.label);
+            $('#details_address').html(node.id);
+            $('#details_registered').html(node.registered);
+            $('#details_status').html(node.status);
+            $('#details_bio').html(node.bio);
+
+            $('#sidebar').show();
+        });
+    }
+
+    registerEvents(){
+        console.log("Registering Events...");
+        this.network.on('click', (params)=>{
+            $('#sidebar').hide();
+            if(params.nodes[0]){
+                this.showNodeDetails(params.nodes[0]);
+            }
+        });
+    }
 }
 
 //-------------------------------------------------

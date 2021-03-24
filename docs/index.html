@@ -33,12 +33,18 @@ body{
     z-index: 1000;
     position: fixed;
     width: 90vw;
-    height: 60px;
+    height: auto;
     bottom: 1vh;
     right: 5vw;
     border: 2px solid purple;
     background:#fffffa;
     border-radius: 5px;
+    display: none;
+}
+#key{
+    position: fixed;
+    top:80px;
+    left: 20px;
 }
 a {
     text-decoration: none;
@@ -48,12 +54,22 @@ canvas {
   outline: none !important;
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0); /* mobile webkit */
 }
+
+#details_image{
+    float:left;
+}
 </style>
 <body>
 <div id="nav">
 🌐 Map of Humanity
 </div>
-<div id="sidebar" style="display: none;">
+<div id="sidebar">
+    <img id="details_image" src="img/registered.png" width="200px" height="auto"/>
+    <b>Name : </b><span id="details_name"></span><br>
+    <b>Address : </b><span id="details_address"></span><br>
+    <b>Registered : </b><span id="details_registered"></span><br>
+    <b>Status : </b><span id="details_status"></span><br>
+    <b>Bio : </b><span id="details_bio"></span>
 </div>
 <div id="diagram"></div>
 <script src="./js/index.js"></script>
