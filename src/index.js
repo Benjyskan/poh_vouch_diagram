@@ -55,7 +55,7 @@ class Diagram {
                 "firstName": "",
                 "lastName": "",
                 "bio": "",
-                "image": "img/placeholder.png",
+                "image": "img/vouching.png",
                 "video": "",
                 "balance": 1,
                 "color": "orange"
@@ -69,9 +69,12 @@ class Diagram {
                 // node is registered
                 node.color = "orange";
                 node.image = "img/registered.png";
-            }else if(node.status =="Pending Registration"){
+            }else if(node.status =="PendingRegistration"){
                 // node isnt registered
                 node.color = "purple";
+                node.image = "img/pending.png"
+            }else{
+                node.color = "grey";
             }
             // if(node.registered == false && submission.vouchees.length >0){
             //     console.log(node);
