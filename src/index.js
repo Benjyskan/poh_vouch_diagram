@@ -9,7 +9,7 @@ class Diagram {
         this.element = document.getElementById("diagram");
         this.graphURL = "https://api.thegraph.com/subgraphs/name/kleros/proof-of-humanity-mainnet";
 
-        this.graphQuery = "{submissions(first:1000){id status registered name vouchees{id} requests{evidence{sender URI}}}}";
+        this.graphQuery = "{submissions(first:1000){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
 
         this.graphData = [];
         this.structuredData = [];
@@ -23,6 +23,19 @@ class Diagram {
         ]
         this.ubiContract = new ethers.Contract( this.ubiAddress, this.ubiAbi, this.provider);
 
+        this.minTime = 1615432000;
+        this.maxTime = Math.floor(Date.now() / 1000);
+        this.selectedTime = this.maxTime;
+        this.setSliderRange();
+    }
+
+    setSliderRange(){
+        console.log("Setting Slider Range...")
+        $('#timewarp').attr('min',  this.minTime);
+        $('#timewarp').attr('max',  this.maxTime);
+        $('#timewarp').attr('value', this.selectedTime);
+        var date = new Date(this.selectedTime * 1000);
+        $('#timewarpLabel').html(date.toDateString());
     }
 
 
@@ -46,19 +59,23 @@ class Diagram {
         for (var i = 0; i < this.graphData.data.submissions.length; i++) {
             // console.log(this.graphData.data.submissions[i]);
             let submission = this.graphData.data.submissions[i];
+            // console.log(submission.name);
             let node = {
                 "id": submission.id,
                 "label": submission.name,
                 "status": submission.status,
                 "registered":submission.registered,
                 "requests": submission.requests,
+                "creationTime": submission.creationTime,
+                "submissionTime": submission.submissionTime,
                 "firstName": "",
                 "lastName": "",
                 "bio": "",
                 "image": "img/vouching.png",
                 "video": "",
                 "balance": 1,
-                "color": "orange"
+                "color": "orange",
+                "hidden": false
             }
             if(node.status == "None" && node.registered == false){
                 // console.log("Deleted Node ???", node);
@@ -98,48 +115,28 @@ class Diagram {
     }
 
 
-    async addContent(){
-        console.log("Adding Content...");
-        for(var i = 0; i < this.structuredData.nodes.length; i++) {
-            // console.log(this.structuredData.nodes[i]);
-            // try{
-            //     let balance = await this.ubiContract.balanceOf(this.structuredData.nodes[i].id)
-            //     this.structuredData.nodes[i].balance = ethers.utils.formatUnits(balance.toString(), 'wei')/18;
-            //     console.log("balance", this.structuredData.nodes[i].balance);
-            // }catch(error){
-            //     console.log("error getting balanceOf", error);
-            // }
-                    
+    changeTime(time){
+        console.log("Changing Time...");
+        this.selectedTime = time;
+        this.updateNodeVisibility();
+        this.network.setData(this.structuredData);
+        this.network.redraw();
+        var date = new Date(this.selectedTime * 1000);
+        $('#timewarpLabel').html(date.toDateString());
+    }
 
-            try{
-                if(this.structuredData.nodes[i].requests[0].evidence[0].URI ==  undefined){
-                    break;
-                }
-                // console.log(this.ipfs_kleros+this.structuredData.nodes[i].requests[0].evidence[0].URI);
-                let res = await axios.get(this.ipfs_kleros+this.structuredData.nodes[i].requests[0].evidence[0].URI)
-                    .then(async(response)=>{
-                        let res2 = await axios.get(this.ipfs_kleros+response.data.fileURI)
-                            .then((response)=>{
-                                this.structuredData.nodes[i].firstName = response.data.firstName;
-                                this.structuredData.nodes[i].lastName = response.data.lastName;
-                                this.structuredData.nodes[i].bio = response.data.bio;
-                                this.structuredData.nodes[i].image = this.ipfs_kleros+response.data.photo;
-                                this.structuredData.nodes[i].video = this.ipfs_kleros+response.data.video;
-                            })
-                            .catch((error)=>{
-                                console.log("error loading human's image!");
-                            })
-                    })
-                    .catch((error)=>{
-                        console.log("error loading human's image!");
-                    })
-
-            }catch(error){
-                console.log("error loading human's image!");
+    updateNodeVisibility(){
+        console.log("Updating Node Visibility...")
+        let active = 0;
+        for (var i = 0; i < this.structuredData.nodes.length; i++) {
+            if(this.selectedTime >= this.structuredData.nodes[i].creationTime){
+                this.structuredData.nodes[i].hidden = false;
+                active +=1;
+            }else{
+                this.structuredData.nodes[i].hidden = true;
             }
-        } 
-        // console.log("UPDATED STRUCTURED DATA : ",this.structuredData);
-        return this.structuredData;
+        }
+        console.log("active:"+active+" at time:"+this.selectedTime);
     }
 
     draw(data){
@@ -162,7 +159,7 @@ class Diagram {
                 maxVelocity: 100,
                 solver: "forceAtlas2Based",
                 timestep: 0.5,
-                stabilization: { iterations: 50 },
+                stabilization: { iterations: 50 }
             },
             edges: {
                 arrows: {
@@ -248,7 +245,13 @@ class Diagram {
                 this.showNodeDetails(params.nodes[0]);
             }
         });
+
+        $('#timewarp').show();
+        $('#timewarp').on('change', ()=>{
+            this.changeTime($('#timewarp').val());
+        })    
     }
+
 }
 
 //-------------------------------------------------
