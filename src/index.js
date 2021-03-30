@@ -26,7 +26,7 @@ class Diagram {
         this.minTime = 1615432000;
         this.maxTime = Math.floor(Date.now() / 1000);
         this.selectedTime = this.maxTime;
-        this.setSliderRange();
+        // this.setSliderRange();
     }
 
     setSliderRange(){
@@ -51,6 +51,21 @@ class Diagram {
             })
         console.log("GRAPH DATA : ",this.graphData);
     }
+
+    // async batchLoadGraphData(total){
+    //     let amount = 500;
+    //     let fetching = true;
+    //     let batchGraphQuery = "{submissions(first:"+amount+", skip:"+skip+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
+    //     let graphData = await axios.post(this.graphURL, {query: batchGraphQuery})
+    //         .then((response)=>{
+    //             return response.data;
+    //         })
+    //         .catch((error)=>{
+    //             console.log(error);
+    //             return false;
+    //         })
+        
+    // }
 
     async structureData(){
         console.log("Structuring Data...");
@@ -153,13 +168,13 @@ class Diagram {
                 forceAtlas2Based: {
                     gravitationalConstant: -26,
                     centralGravity: 0.005,
-                    springLength: 230,
+                    springLength: 200,
                     springConstant: 0.18,
                 },
                 maxVelocity: 100,
                 solver: "forceAtlas2Based",
-                timestep: 0.5,
-                stabilization: { iterations: 50 }
+                timestep: 0.25,
+                stabilization: { iterations: 150 }
             },
             edges: {
                 arrows: {
@@ -246,10 +261,10 @@ class Diagram {
             }
         });
 
-        $('#timewarp').show();
-        $('#timewarp').on('change', ()=>{
-            this.changeTime($('#timewarp').val());
-        })    
+        // $('#timewarp').show();
+        // $('#timewarp').on('change', ()=>{
+        //     this.changeTime($('#timewarp').val());
+        // })    
     }
 
 }
