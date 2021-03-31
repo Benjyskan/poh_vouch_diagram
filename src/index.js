@@ -1,7 +1,9 @@
 import * as axios from 'axios';
 import * as vis from 'vis-network';
-import * as ethers from 'ethers';
+// import * as ethers from 'ethers';
 import * as $ from 'jquery';
+// import Web3 from 'web3';
+// import Web3Modal from 'web3modal';
 
 class Diagram {
     constructor(){
@@ -21,14 +23,14 @@ class Diagram {
             "function symbol() view returns (string)",
             "function balanceOf(address) view returns (uint)",
         ]
-        this.ubiContract = new ethers.Contract( this.ubiAddress, this.ubiAbi, this.provider);
+        // this.ubiContract = new ethers.Contract( this.ubiAddress, this.ubiAbi, this.provider);
 
         this.minTime = 1615432000;
         this.maxTime = Math.floor(Date.now() / 1000);
         this.selectedTime = this.maxTime;
         // this.setSliderRange();
     }
-
+    
     setSliderRange(){
         console.log("Setting Slider Range...")
         $('#timewarp').attr('min',  this.minTime);
@@ -52,20 +54,39 @@ class Diagram {
         console.log("GRAPH DATA : ",this.graphData);
     }
 
-    // async batchLoadGraphData(total){
-    //     let amount = 500;
-    //     let fetching = true;
-    //     let batchGraphQuery = "{submissions(first:"+amount+", skip:"+skip+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
-    //     let graphData = await axios.post(this.graphURL, {query: batchGraphQuery})
-    //         .then((response)=>{
-    //             return response.data;
-    //         })
-    //         .catch((error)=>{
-    //             console.log(error);
-    //             return false;
-    //         })
-        
-    // }
+    async multiLoadGraphData(){
+        let query1000 = "{submissions(first: 1000, skip:"+0+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
+        let query2000 = "{submissions(first: 1000, skip:"+1000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
+
+        let data = await axios.post(this.graphURL, {query: query1000})
+            .then(async (response)=>{
+                let response2 = await axios.post(this.graphURL, {query: query2000})
+                    .then((res)=>{
+                        // console.log(res.data);
+                        return res;
+                    })
+                    .catch((error)=>{
+                        console.log(error);
+                        return false;
+                    })
+                let data = {"submissions":[]};
+                for (var i = 0; i < response.data.data.submissions.length; i++) {
+                     data["submissions"].push(response.data.data.submissions[i]);
+                }
+                
+                for (var i = 0; i < response2.data.data.submissions.length; i++) {
+                     data["submissions"].push(response2.data.data.submissions[i]);
+                }
+                return data
+            })
+            .catch((error)=>{
+                console.log(error);
+                return false;
+            })
+        this.graphData = {"data": data};
+        console.log("MULTI QUERY GRAPH DATA : ",this.graphData);
+
+    }
 
     async structureData(){
         console.log("Structuring Data...");
@@ -75,6 +96,7 @@ class Diagram {
             // console.log(this.graphData.data.submissions[i]);
             let submission = this.graphData.data.submissions[i];
             // console.log(submission.name);
+            // 
             let node = {
                 "id": submission.id,
                 "label": submission.name,
@@ -255,6 +277,7 @@ class Diagram {
     registerEvents(){
         console.log("Registering Events...");
         this.network.on('click', (params)=>{
+
             $('#sidebar').hide();
             if(params.nodes[0]){
                 this.showNodeDetails(params.nodes[0]);
@@ -273,13 +296,14 @@ class Diagram {
 async function run(){
     let diagram = new Diagram();
     console.log("------------------------------------")
-    diagram.loadGraphData().then((graphdata)=>{
+    diagram.multiLoadGraphData().then((graphdata)=>{
         diagram.structureData().then((structureddata)=>{
             diagram.draw(structureddata);
             console.warn("👋 Vouch for me -> https://app.proofofhumanity.id/profile/0x601729acddb9e966822a90de235d494647691f1d?network=mainnet");
         })
     })   
 }
+
 
 console.log("Map of Proof of Humanity Loading...");
 run();
