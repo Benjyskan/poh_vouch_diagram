@@ -8,6 +8,9 @@ import * as $ from 'jquery';
 class Diagram {
     constructor(){
         console.log("Constructing...");
+        // this.profile_id = new URLSearchParams(window.location.search).get('profile_id');
+        // if(typeof this.profile_id == 'undefined')
+        this.profile_id = false;
         this.element = document.getElementById("diagram");
         this.graphURL = "https://api.thegraph.com/subgraphs/name/kleros/proof-of-humanity-mainnet";
 
@@ -44,6 +47,21 @@ class Diagram {
     async loadGraphData(){
         console.log("Querying Graph Data...");
         this.graphData = await axios.post(this.graphURL, {query: this.graphQuery})
+            .then((response)=>{
+                return response.data;
+            })
+            .catch((error)=>{
+                console.log(error);
+                return false;
+            })
+        console.log("GRAPH DATA : ",this.graphData);
+    }
+
+    async singleProfile(){
+        console.log("Querying Single User Graph Data...");
+        let graphQuery = '{submission(id:"'+this.profile_id+'"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}';
+        console.log(graphQuery)
+        this.graphData = await axios.post(this.graphURL, {query: graphQuery})
             .then((response)=>{
                 return response.data;
             })
@@ -186,18 +204,18 @@ class Diagram {
                 // parseColor: true,
                 shape: "circularImage"
             },
-            physics: {
-                forceAtlas2Based: {
-                    gravitationalConstant: -26,
-                    centralGravity: 0.005,
-                    springLength: 200,
-                    springConstant: 0.18,
-                },
-                maxVelocity: 100,
-                solver: "forceAtlas2Based",
-                timestep: 0.25,
-                stabilization: { iterations: 150 }
-            },
+            // physics: {
+            //     forceAtlas2Based: {
+            //         // gravitationalConstant: -26,
+            //         centralGravity: 0.005,
+            //         springLength: 200,
+            //         springConstant: 0.18,
+            //     },
+            //     maxVelocity: 200,
+            //     solver: "repulsion",
+            //     timestep: 0.5,
+            //     stabilization: { iterations: 150 }
+            // },
             edges: {
                 arrows: {
                     to: { enabled: true, scaleFactor: 1, type: "arrow" }
@@ -299,11 +317,12 @@ async function run(){
     diagram.multiLoadGraphData().then((graphdata)=>{
         diagram.structureData().then((structureddata)=>{
             diagram.draw(structureddata);
-            console.warn("👋 Vouch for me -> https://app.proofofhumanity.id/profile/0x601729acddb9e966822a90de235d494647691f1d?network=mainnet");
         })
-    })   
+    })
 }
 
 
+// const profile_id =  new URLSearchParams(window.location.search).get('profile_id');
+// console.log(profile_id)
 console.log("Map of Proof of Humanity Loading...");
 run();
