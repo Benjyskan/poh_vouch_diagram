@@ -76,6 +76,7 @@ class Diagram {
     async multiLoadGraphData(){
         let query1000 = "{submissions(first: 1000, skip:"+0+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
         let query2000 = "{submissions(first: 1000, skip:"+1000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
+        let query3000 = "{submissions(first: 1000, skip:"+2000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
 
         let data = await axios.post(this.graphURL, {query: query1000})
             .then(async (response)=>{
@@ -88,6 +89,16 @@ class Diagram {
                         console.log(error);
                         return false;
                     })
+                let response3 = await axios.post(this.graphURL, {query: query3000})
+                    .then((res)=>{
+                        // console.log(res.data);
+                        return res;
+                    })
+                    .catch((error)=>{
+                        console.log(error);
+                        return false;
+                    })
+
                 let data = {"submissions":[]};
                 for (var i = 0; i < response.data.data.submissions.length; i++) {
                      data["submissions"].push(response.data.data.submissions[i]);
@@ -95,6 +106,10 @@ class Diagram {
                 
                 for (var i = 0; i < response2.data.data.submissions.length; i++) {
                      data["submissions"].push(response2.data.data.submissions[i]);
+                }
+
+                for (var i = 0; i < response3.data.data.submissions.length; i++) {
+                     data["submissions"].push(response3.data.data.submissions[i]);
                 }
                 return data
             })
@@ -157,15 +172,27 @@ class Diagram {
             
             for (var j = 0; j < submission.vouchees.length; j++) {
                 let vouchee = submission.vouchees[j];
+                // let edge = {
+                //     "from": node.id,
+                //     "to": vouchee.id
+                // }
+                //USES SOURCE TARGET IN 3D NOT TO FROM
+
                 let edge = {
-                    "from": node.id,
-                    "to": vouchee.id
+                    "source": node.id,
+                    "target": vouchee.id
                 }
                 // console.log("EDGE", edge)
                 edges.push(edge);
+
+                
             }
         }
-        this.structuredData = {"nodes":nodes, "edges":edges};
+
+        // this.structuredData = {"nodes":nodes, "edges":edges};
+        // USES "LINKS" FOR 3D not edges
+
+        this.structuredData = {"nodes":nodes, "links":edges};
         console.log("STRUCTURED DATA : ", this.structuredData); 
         return this.structuredData;
     }
@@ -205,18 +232,18 @@ class Diagram {
                 // parseColor: true,
                 shape: "circularImage"
             },
-            // physics: {
-            //     forceAtlas2Based: {
-            //         // gravitationalConstant: -26,
-            //         centralGravity: 0.005,
-            //         springLength: 200,
-            //         springConstant: 0.18,
-            //     },
-            //     maxVelocity: 200,
-            //     solver: "repulsion",
-            //     timestep: 0.5,
-            //     stabilization: { iterations: 150 }
-            // },
+            physics: {
+                forceAtlas2Based: {
+                    // gravitationalConstant: -26,
+                    centralGravity: 0.005,
+                    springLength: 200,
+                    springConstant: 0.18,
+                },
+                maxVelocity: 200,
+                solver: "repulsion",
+                timestep: 0.5,
+                stabilization: { iterations: 150 }
+            },
             edges: {
                 arrows: {
                     to: { enabled: true, scaleFactor: 1, type: "arrow" }
@@ -229,8 +256,35 @@ class Diagram {
     }
 
     draw3D(data){
-        this.threeDGraph = ForceGraph3D();
-        this.threeDGraph(document.getElementById("diagram")).graphData(data);
+
+        this.threeDGraph = ForceGraph3D()
+      (document.getElementById('diagram'))
+        .graphData(data)
+        .backgroundColor("#fffffa")
+        .width('100vw')
+        .height('100vw')
+        .linkColor(() => 'purple')
+        .nodeAutoColorBy('status')
+        .nodeThreeObject(node => {
+          const sprite = new SpriteText(node.label);
+          sprite.material.depthWrite = false; // make sprite background transparent
+          sprite.color = node.color;
+          sprite.textHeight = 8;
+          return sprite;
+        })
+        .onNodeClick(node => {
+          const distance = 100;
+          const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+
+          this.threeDGraph.cameraPosition(
+            { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+            node, // lookAt ({ x, y, z })
+            3000  // ms transition duration
+          );
+        });
+
+        // this.threeDGraph = ForceGraph3D();
+        // this.threeDGraph(document.getElementById("diagram")).graphData(data);
     }
 
     async getProfile(node){
@@ -284,9 +338,6 @@ class Diagram {
             $('#details_status').html(node.status);
             $('#details_bio').html(node.bio);
 
-            if(node.id == "0x601729acddb9e966822a90de235d494647691f1d"){
-                console.log("👋 Vouch for me -> https://app.proofofhumanity.id/profile/0x601729acddb9e966822a90de235d494647691f1d?network=mainnet");
-            }
             // this.getUBIBalance(nodeID).then((balance)=>{
             //     console.log("bal", balance);
             //     node.balance = balance;

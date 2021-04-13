@@ -46,6 +46,12 @@
 	 * Licensed under the MIT license */
 
 /**
+ * @license
+ * Copyright 2010-2021 Three.js Authors
+ * SPDX-License-Identifier: MIT
+ */
+
+/**
  * vis-data
  * http://visjs.org/
  *
