@@ -273,6 +273,7 @@ class Diagram {
           return sprite;
         })
         .onNodeClick(node => {
+          this.showNodeDetails(node.id)
           const distance = 100;
           const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
 
@@ -349,21 +350,21 @@ class Diagram {
 
     }
 
-    registerEvents(){
-        console.log("Registering Events...");
-        this.network.on('click', (params)=>{
+    // registerEvents(){
+    //     console.log("Registering Events...");
+    //     this.network.on('click', (params)=>{
 
-            $('#sidebar').hide();
-            if(params.nodes[0]){
-                this.showNodeDetails(params.nodes[0]);
-            }
-        });
+    //         $('#sidebar').hide();
+    //         if(params.nodes[0]){
+    //             this.showNodeDetails(params.nodes[0]);
+    //         }
+    //     });
 
-        // $('#timewarp').show();
-        // $('#timewarp').on('change', ()=>{
-        //     this.changeTime($('#timewarp').val());
-        // })    
-    }
+    //     // $('#timewarp').show();
+    //     // $('#timewarp').on('change', ()=>{
+    //     //     this.changeTime($('#timewarp').val());
+    //     // })    
+    // }
 
 }
 
