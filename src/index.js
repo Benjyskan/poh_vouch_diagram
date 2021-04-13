@@ -4,6 +4,7 @@ import * as vis from 'vis-network';
 import * as $ from 'jquery';
 // import Web3 from 'web3';
 // import Web3Modal from 'web3modal';
+import ForceGraph3D from '3d-force-graph';
 
 class Diagram {
     constructor(){
@@ -227,6 +228,11 @@ class Diagram {
         this.registerEvents();
     }
 
+    draw3D(data){
+        this.threeDGraph = ForceGraph3D();
+        this.threeDGraph(document.getElementById("diagram")).graphData(data);
+    }
+
     async getProfile(node){
         
         let res = await axios.get(this.ipfs_kleros+node.requests[0].evidence[0].URI)
@@ -316,7 +322,7 @@ async function run(){
     console.log("------------------------------------")
     diagram.multiLoadGraphData().then((graphdata)=>{
         diagram.structureData().then((structureddata)=>{
-            diagram.draw(structureddata);
+            diagram.draw3D(structureddata);
         })
     })
 }
