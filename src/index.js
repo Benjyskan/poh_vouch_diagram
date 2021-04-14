@@ -48,16 +48,17 @@ class Diagram {
 
 
     async connectWallet(){
-        console.log("Connecting Wallet...")
-        window.ethereum.enable()
+        console.log("Connecting Wallet...");
+        window.ethereum.enable
         this.provider = new ethers.providers.Web3Provider(window.ethereum)
         this.signer = this.provider.getSigner()
-        await this.signer.getAddress().then(address=>{
+        let res = await this.signer.getAddress().then(address=>{
             // console.log(address)
-            let node = this.structuredData.nodes.find(x => x.id === address);
+            let lwr = address.toLowerCase();
+            let node = this.structuredData.nodes.find(x => x.id === lwr);
             if(typeof node !== 'undefined'){
-                this.showNodeDetails(address)
-                const distance = 100;
+                // this.showNodeDetails(address)
+                const distance = 50;
                 const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
 
                 this.threeDGraph.cameraPosition(
@@ -219,7 +220,7 @@ class Diagram {
         // USES "LINKS" FOR 3D not edges
 
         this.structuredData = {"nodes":nodes, "links":edges};
-        console.log("STRUCTURED DATA : ", this.structuredData); 
+        // console.log("STRUCTURED DATA : ", this.structuredData); 
         return this.structuredData;
     }
 
@@ -414,7 +415,8 @@ async function run(){
     diagram.multiLoadGraphData().then((graphdata)=>{
         diagram.structureData().then((structureddata)=>{
             diagram.draw3D(structureddata)
-             
+            if(userPrefersDark){diagram.switchMode();}
+            $('#find_me').show();
         })
     })
     $('#find_me').click(()=>{
@@ -428,5 +430,9 @@ async function run(){
 
 // const profile_id =  new URLSearchParams(window.location.search).get('profile_id');
 // console.log(profile_id)
+const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+
+
 console.log("Map of Proof of Humanity Loading...");
 run();
