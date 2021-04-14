@@ -1,6 +1,6 @@
 import * as axios from 'axios';
 import * as vis from 'vis-network';
-// import * as ethers from 'ethers';
+import * as ethers from 'ethers';
 import * as $ from 'jquery';
 // import Web3 from 'web3';
 // import Web3Modal from 'web3modal';
@@ -33,7 +33,9 @@ class Diagram {
         this.maxTime = Math.floor(Date.now() / 1000);
         this.selectedTime = this.maxTime;
         // this.setSliderRange();
+        this.mode = "day"
     }
+
     
     setSliderRange(){
         console.log("Setting Slider Range...")
@@ -45,6 +47,30 @@ class Diagram {
     }
 
 
+    async connectWallet(){
+        console.log("Connecting Wallet...")
+        window.ethereum.enable()
+        this.provider = new ethers.providers.Web3Provider(window.ethereum)
+        this.signer = this.provider.getSigner()
+        await this.signer.getAddress().then(address=>{
+            // console.log(address)
+            let node = this.structuredData.nodes.find(x => x.id === address);
+            if(typeof node !== 'undefined'){
+                this.showNodeDetails(address)
+                const distance = 100;
+                const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+
+                this.threeDGraph.cameraPosition(
+                    { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+                    node, // lookAt ({ x, y, z })
+                    3000  // ms transition duration
+                );
+            }else{
+                console.log("couldnt find node")
+            }
+        })
+    }
+
     async loadGraphData(){
         console.log("Querying Graph Data...");
         this.graphData = await axios.post(this.graphURL, {query: this.graphQuery})
@@ -55,7 +81,7 @@ class Diagram {
                 console.log(error);
                 return false;
             })
-        console.log("GRAPH DATA : ",this.graphData);
+        // console.log("GRAPH DATA : ",this.graphData);
     }
 
     async singleProfile(){
@@ -70,7 +96,7 @@ class Diagram {
                 console.log(error);
                 return false;
             })
-        console.log("GRAPH DATA : ",this.graphData);
+        // console.log("GRAPH DATA : ",this.graphData);
     }
 
     async multiLoadGraphData(){
@@ -118,7 +144,7 @@ class Diagram {
                 return false;
             })
         this.graphData = {"data": data};
-        console.log("MULTI QUERY GRAPH DATA : ",this.graphData);
+        // console.log("MULTI QUERY GRAPH DATA : ",this.graphData);
 
     }
 
@@ -255,7 +281,7 @@ class Diagram {
         this.registerEvents();
     }
 
-    draw3D(data){
+    async draw3D(data){
 
         this.threeDGraph = ForceGraph3D()
       (document.getElementById('diagram'))
@@ -273,7 +299,7 @@ class Diagram {
           return sprite;
         })
         .onNodeClick(node => {
-          this.showNodeDetails(node.id)
+          // this.showNodeDetails(node.id)
           const distance = 100;
           const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
 
@@ -286,6 +312,19 @@ class Diagram {
 
         // this.threeDGraph = ForceGraph3D();
         // this.threeDGraph(document.getElementById("diagram")).graphData(data);
+    }
+
+    switchMode(){
+        if(this.mode == "day"){
+            this.mode = "night"
+            $('#mode').html('🌛')
+            this.threeDGraph.backgroundColor("#2e3541").linkColor(() => 'skyblue')
+        }else{
+            this.mode = "day"
+            $('#mode').html('🌞')
+            this.threeDGraph.backgroundColor("#fffffa").linkColor(() => 'purple')
+        }
+        // console.log(this.mode+" mode.")
     }
 
     async getProfile(node){
@@ -374,8 +413,15 @@ async function run(){
     console.log("------------------------------------")
     diagram.multiLoadGraphData().then((graphdata)=>{
         diagram.structureData().then((structureddata)=>{
-            diagram.draw3D(structureddata);
+            diagram.draw3D(structureddata)
+             
         })
+    })
+    $('#find_me').click(()=>{
+        diagram.connectWallet()
+    })
+    $('#mode').click(()=>{
+        diagram.switchMode()
     })
 }
 
