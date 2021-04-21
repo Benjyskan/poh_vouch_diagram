@@ -105,6 +105,19 @@ class Diagram {
         let query2000 = "{submissions(first: 1000, skip:"+1000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
         let query3000 = "{submissions(first: 1000, skip:"+2000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
 
+
+        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
+        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
+        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
+        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
+        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
+        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
+        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
+        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
+        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
+
+        let query4000 = "{submissions(first: 1000, skip:"+3000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
+
         let data = await axios.post(this.graphURL, {query: query1000})
             .then(async (response)=>{
                 let response2 = await axios.post(this.graphURL, {query: query2000})
@@ -126,6 +139,16 @@ class Diagram {
                         return false;
                     })
 
+                let response4 = await axios.post(this.graphURL, {query: query4000})
+                    .then((res)=>{
+                        // console.log(res.data);
+                        return res;
+                    })
+                    .catch((error)=>{
+                        console.log(error);
+                        return false;
+                    })
+
                 let data = {"submissions":[]};
                 for (var i = 0; i < response.data.data.submissions.length; i++) {
                      data["submissions"].push(response.data.data.submissions[i]);
@@ -137,6 +160,9 @@ class Diagram {
 
                 for (var i = 0; i < response3.data.data.submissions.length; i++) {
                      data["submissions"].push(response3.data.data.submissions[i]);
+                }
+                for (var i = 0; i < response4.data.data.submissions.length; i++) {
+                     data["submissions"].push(response4.data.data.submissions[i]);
                 }
                 return data
             })
@@ -292,13 +318,15 @@ class Diagram {
         .height('100vw')
         .linkColor(() => 'purple')
         .nodeAutoColorBy('status')
-        .nodeThreeObject(node => {
-          const sprite = new SpriteText(node.label);
-          sprite.material.depthWrite = false; // make sprite background transparent
-          sprite.color = node.color;
-          sprite.textHeight = 8;
-          return sprite;
-        })
+        // .nodeThreeObject(node => {
+        //   const sprite = new SpriteText(node.label);
+        //   sprite.material.depthWrite = false; // make sprite background transparent
+        //   sprite.color = node.color;
+        //   sprite.textHeight = 8;
+        //   return sprite;
+        // })
+
+        .nodeLabel(node => `${node.label}`)
         .onNodeClick(node => {
           // this.showNodeDetails(node.id)
           const distance = 100;
@@ -419,11 +447,34 @@ async function run(){
             $('#find_me').show();
         })
     })
+    // $('#sidebar-close').click(()=>{
+    //     $('#sidebar').hide();
+    // })
     $('#find_me').click(()=>{
         diagram.connectWallet()
     })
     $('#mode').click(()=>{
         diagram.switchMode()
+    })
+
+    $('#search-address').on('change', ()=>{
+        let add = $('#search-address').val();
+        console.log(add.toLowerCase());
+        let node = diagram.structuredData.nodes.find(x => x.id === add.toLowerCase());
+
+        if(typeof node !== 'undefined'){
+            const distance = 50;
+            const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+
+            diagram.threeDGraph.cameraPosition(
+                { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+                node, // lookAt ({ x, y, z })
+                3000  // ms transition duration
+            );
+            console.log(diagram.threeDGraph)
+
+            // diagram.showNodeDetails(node.id);
+        }
     })
 }
 

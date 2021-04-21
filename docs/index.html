@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="description" content="A Map of the Proof of Humanity network.">
-    <meta name="author" content="Isaac Clarke">
+    <meta name="author" content="Isaac">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map of Humanity</title>
     <link rel="icon" 
@@ -91,15 +91,32 @@ a {
     margin-top: 10px;
     background: #fffffa;
     border-radius: 5px;
-    height: 40px;
+    height: 35px;
     width: 60px;
+    border: 2px solid purple;
+}
+#search-address{
+    float: right;
+    height: 30px;
+    width: 200px;
+    margin-top: 10px;
+    margin-right: 20px;
+    border: 2px solid purple;
+    border-radius: 5px;
+    background: #fffffa;
+}
+
+.scene-tooltip {
+    color: #fffffa;
+    background: #2e3541;
 }
 </style>
 <body>
 <div id="nav">
 🌐 Map of Humanity
-<button id="mode">🌛</button> 
+<button id="mode">🌞</button> 
 <!-- button id="find_me">Find Me!</button> -->
+<input type="text" name="address" placeholder="Search Address: 0x...." id="search-address">
 </div>
 <!-- <div id="timeline">
     <input id="timewarp" type="range" name="timewarp" >
@@ -114,6 +131,8 @@ a {
     <b>Status : </b><span id="details_status"></span><br>
     <b>Bio : </b><span id="details_bio"></span>
     <span style="display: none"><b>UBI : </b><span id="details_ubi"></span></span>
+    <br><br>
+    <span id="sidebar-close"><button>CLOSE</button></span>
 </div>
 <div id="diagram">LOADING...</div>
 <script src="https://unpkg.com/three"></script>
