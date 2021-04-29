@@ -105,7 +105,6 @@ class Diagram {
         let query2000 = "{submissions(first: 1000, skip:"+1000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
         let query3000 = "{submissions(first: 1000, skip:"+2000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
 
-
         //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
         //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
         //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
@@ -117,6 +116,8 @@ class Diagram {
         //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
 
         let query4000 = "{submissions(first: 1000, skip:"+3000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
+        let query5000 = "{submissions(first: 1000, skip:"+4000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
+
 
         let data = await axios.post(this.graphURL, {query: query1000})
             .then(async (response)=>{
@@ -149,6 +150,16 @@ class Diagram {
                         return false;
                     })
 
+                let response5 = await axios.post(this.graphURL, {query: query5000})
+                    .then((res)=>{
+                        // console.log(res.data);
+                        return res;
+                    })
+                    .catch((error)=>{
+                        console.log(error);
+                        return false;
+                    })
+
                 let data = {"submissions":[]};
                 for (var i = 0; i < response.data.data.submissions.length; i++) {
                      data["submissions"].push(response.data.data.submissions[i]);
@@ -163,6 +174,10 @@ class Diagram {
                 }
                 for (var i = 0; i < response4.data.data.submissions.length; i++) {
                      data["submissions"].push(response4.data.data.submissions[i]);
+                }
+
+                for (var i = 0; i < response5.data.data.submissions.length; i++) {
+                     data["submissions"].push(response5.data.data.submissions[i]);
                 }
                 return data
             })
