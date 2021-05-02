@@ -101,90 +101,30 @@ class Diagram {
     }
 
     async multiLoadGraphData(){
-        let query1000 = "{submissions(first: 1000, skip:"+0+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
-        let query2000 = "{submissions(first: 1000, skip:"+1000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
-        let query3000 = "{submissions(first: 1000, skip:"+2000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
 
-        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
-        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
-        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
-        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
-        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
-        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
-        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
-        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
-        //THIS REALLY NEEDS REPLACING WITH SOMETHING RECURSIVE!!!
+        let max = 5000;
+        let inc = 500;
 
-        let query4000 = "{submissions(first: 1000, skip:"+3000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
-        let query5000 = "{submissions(first: 1000, skip:"+4000+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
+        let data = {"submissions":[]};
+        for(var i = 0; i < max; i+=inc) {
+            console.log(i);
+            let query = "{submissions(first: 1000, skip:"+i+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
+            await axios.post(this.graphURL, {query: query})
+                .then((res)=>{
+                    console.log(res.data);
+                    for (var i = 0; i < res.data.data.submissions.length; i++) {
+                       data["submissions"].push(res.data.data.submissions[i]);
+                    }
+                    return res;
+                })
+                .catch((error)=>{
+                    console.log(error);
+                    return false;
+                })
+        }
 
+        
 
-        let data = await axios.post(this.graphURL, {query: query1000})
-            .then(async (response)=>{
-                let response2 = await axios.post(this.graphURL, {query: query2000})
-                    .then((res)=>{
-                        // console.log(res.data);
-                        return res;
-                    })
-                    .catch((error)=>{
-                        console.log(error);
-                        return false;
-                    })
-                let response3 = await axios.post(this.graphURL, {query: query3000})
-                    .then((res)=>{
-                        // console.log(res.data);
-                        return res;
-                    })
-                    .catch((error)=>{
-                        console.log(error);
-                        return false;
-                    })
-
-                let response4 = await axios.post(this.graphURL, {query: query4000})
-                    .then((res)=>{
-                        // console.log(res.data);
-                        return res;
-                    })
-                    .catch((error)=>{
-                        console.log(error);
-                        return false;
-                    })
-
-                let response5 = await axios.post(this.graphURL, {query: query5000})
-                    .then((res)=>{
-                        // console.log(res.data);
-                        return res;
-                    })
-                    .catch((error)=>{
-                        console.log(error);
-                        return false;
-                    })
-
-                let data = {"submissions":[]};
-                for (var i = 0; i < response.data.data.submissions.length; i++) {
-                     data["submissions"].push(response.data.data.submissions[i]);
-                }
-                
-                for (var i = 0; i < response2.data.data.submissions.length; i++) {
-                     data["submissions"].push(response2.data.data.submissions[i]);
-                }
-
-                for (var i = 0; i < response3.data.data.submissions.length; i++) {
-                     data["submissions"].push(response3.data.data.submissions[i]);
-                }
-                for (var i = 0; i < response4.data.data.submissions.length; i++) {
-                     data["submissions"].push(response4.data.data.submissions[i]);
-                }
-
-                for (var i = 0; i < response5.data.data.submissions.length; i++) {
-                     data["submissions"].push(response5.data.data.submissions[i]);
-                }
-                return data
-            })
-            .catch((error)=>{
-                console.log(error);
-                return false;
-            })
         this.graphData = {"data": data};
         // console.log("MULTI QUERY GRAPH DATA : ",this.graphData);
 
