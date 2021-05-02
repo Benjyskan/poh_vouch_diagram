@@ -105,26 +105,50 @@ class Diagram {
         let max = 5000;
         let inc = 500;
 
-        let data = {"submissions":[]};
-        for(var i = 0; i < max; i+=inc) {
-            console.log(i);
-            let query = "{submissions(first: 1000, skip:"+i+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
-            await axios.post(this.graphURL, {query: query})
-                .then((res)=>{
-                    console.log(res.data);
-                    for (var i = 0; i < res.data.data.submissions.length; i++) {
-                       data["submissions"].push(res.data.data.submissions[i]);
-                    }
-                    return res;
-                })
-                .catch((error)=>{
-                    console.log(error);
-                    return false;
-                })
+        function makeRequest(i) {
+            // console.log("Add promise")
+            return new Promise((resolve) => {
+                let query = "{submissions(first: 1000, skip:"+i+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
+                let response = axios.post("https://api.thegraph.com/subgraphs/name/kleros/proof-of-humanity-mainnet", {query: query})
+                    .then((res)=>{
+                        // console.log(res.data);
+                        return res;
+                    })
+                    .catch((error)=>{
+                        console.log(error);
+                        return false;
+                    })
+                resolve(response);
+            });
         }
 
-        
+        async function process(arrayOfPromises) {
+            console.time(`process`);
+            let responses = await Promise.all(arrayOfPromises);
+            let data = {"submissions":[]};
 
+            for(let r of responses) {
+                // console.log("R", r);
+                for (var i = 0; i < r.data.data.submissions.length; i++) {
+                   data["submissions"].push(r.data.data.submissions[i]);
+                }
+            }
+            console.timeEnd(`process`);
+            return data;
+        }
+
+        async function handler() {
+            let arrayOfPromises = []
+            for(var i = 0; i < max; i+=inc) {
+                arrayOfPromises.push(makeRequest(i))
+            }
+            let data = await process(arrayOfPromises);
+            console.log(`processing is complete`);
+            return data;
+        }
+
+        let data = await handler();
+        // console.log("DATA", data);
         this.graphData = {"data": data};
         // console.log("MULTI QUERY GRAPH DATA : ",this.graphData);
 
