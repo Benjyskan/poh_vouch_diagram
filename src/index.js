@@ -108,7 +108,7 @@ class Diagram {
         function makeRequest(i) {
             // console.log("Add promise")
             return new Promise((resolve) => {
-                let query = "{submissions(first: 1000, skip:"+i+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
+                let query = "{submissions(first: 500, skip:"+i+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
                 let response = axios.post("https://api.thegraph.com/subgraphs/name/kleros/proof-of-humanity-mainnet", {query: query})
                     .then((res)=>{
                         // console.log(res.data);
