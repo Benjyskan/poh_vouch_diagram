@@ -102,7 +102,7 @@ class Diagram {
 
     async multiLoadGraphData(){
 
-        let max = 5000;
+        let max = 6000;
         let inc = 500;
 
         function makeRequest(i) {
