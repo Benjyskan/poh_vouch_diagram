@@ -102,7 +102,7 @@ class Diagram {
 
     async multiLoadGraphData(){
 
-        let max = 6000;
+        let max = 5500;
         let inc = 500;
 
         function makeRequest(i) {
@@ -111,7 +111,7 @@ class Diagram {
                 let query = "{submissions(first: 500, skip:"+i+"){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}";
                 let response = axios.post("https://api.thegraph.com/subgraphs/name/kleros/proof-of-humanity-mainnet", {query: query})
                     .then((res)=>{
-                        // console.log(res.data);
+                        console.log(res.data);
                         return res;
                     })
                     .catch((error)=>{
@@ -128,7 +128,7 @@ class Diagram {
             let data = {"submissions":[]};
 
             for(let r of responses) {
-                // console.log("R", r);
+                // console.log("RRR", r);
                 for (var i = 0; i < r.data.data.submissions.length; i++) {
                    data["submissions"].push(r.data.data.submissions[i]);
                 }
