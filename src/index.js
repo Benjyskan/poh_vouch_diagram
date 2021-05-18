@@ -102,8 +102,8 @@ class Diagram {
 
     async multiLoadGraphData(){
 
-        let max = 5500;
-        let inc = 500;
+        let max = 0;
+        let inc = 0;
 
         function makeRequest(i) {
             // console.log("Add promise")
