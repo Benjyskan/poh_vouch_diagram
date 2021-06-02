@@ -103,7 +103,7 @@ class Diagram {
     async multiLoadGraphData(){
         let id = 0;
         let count = 0;
-        let limit = 6000;
+        let limit = 7000;
         let data = {"submissions":[]};
 
         while(count <= limit){
