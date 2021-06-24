@@ -103,12 +103,12 @@ class Diagram {
     async multiLoadGraphData(){
         let id = 0;
         let count = 0;
-        let limit = 7000;
+        let limit = 8000;
         let data = {"submissions":[]};
 
         while(count <= limit){
             let query = '{submissions(first: 1000, where: {id_gt:"'+id+'"}){id creationTime submissionTime status registered name vouchees{id} requests{evidence{sender URI}}}}';
-            // console.log(query);
+            console.log(query);
             let response = await axios.post("https://api.thegraph.com/subgraphs/name/kleros/proof-of-humanity-mainnet", {query: query})
                 .then((res)=>{
                     console.log(res.data);
@@ -294,18 +294,18 @@ class Diagram {
                 // parseColor: true,
                 shape: "circularImage"
             },
-            physics: {
-                forceAtlas2Based: {
-                    // gravitationalConstant: -26,
-                    centralGravity: 0.005,
-                    springLength: 200,
-                    springConstant: 0.18,
-                },
-                maxVelocity: 200,
-                solver: "repulsion",
-                timestep: 0.5,
-                stabilization: { iterations: 150 }
-            },
+            // physics: {
+            //     forceAtlas2Based: {
+            //         // gravitationalConstant: -26,
+            //         centralGravity: 0.005,
+            //         springLength: 200,
+            //         springConstant: 0.18,
+            //     },
+            //     maxVelocity: 200,
+            //     solver: "repulsion",
+            //     timestep: 0.5,
+            //     stabilization: { iterations: 150 }
+            // },
             edges: {
                 arrows: {
                     to: { enabled: true, scaleFactor: 1, type: "arrow" }
@@ -314,7 +314,7 @@ class Diagram {
         };
         this.network = new vis.Network(document.getElementById("diagram"), data, drawingOptions);
         // console.log(network);
-        this.registerEvents();
+        // this.registerEvents();
     }
 
     async draw3D(data){
@@ -453,7 +453,7 @@ async function run(){
         diagram.structureData().then((structureddata)=>{
             diagram.draw3D(structureddata)
             if(userPrefersDark){diagram.switchMode();}
-            $('#find_me').show();
+            // $('#find_me').show();
         })
     })
     // $('#sidebar-close').click(()=>{
